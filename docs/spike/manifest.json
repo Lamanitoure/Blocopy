@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Blocopy Spike",
+  "version": "0.1.0",
+  "description": "Throwaway extension to test CSS Custom Highlight API and ClipboardItem in Firefox",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "blocopy-spike@test.local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  }
+}
