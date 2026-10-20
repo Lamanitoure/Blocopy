@@ -10,7 +10,8 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "node scripts/build.mjs",
+    "build:web": "vite build",
     "dev": "vite --host 0.0.0.0 --port 3000",
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "eslint src scripts test",

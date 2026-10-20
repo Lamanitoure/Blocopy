@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Fixture 5 — Shadow DOM</title>
+  </head>
+  <body>
+    <div>
+      <h1>Standard Page Content</h1>
+      <p>This paragraph is outside of any shadow DOM root element.</p>
+      <div id="shadow-host"></div>
+    </div>
+    <script>
+      const host = document.getElementById('shadow-host');
+      if (host) {
+        const shadow = host.attachShadow({ mode: 'open' });
+        const container = document.createElement('article');
+        container.innerHTML = `
+          <h2>Shadow DOM Encapsulated Component</h2>
+          <p>This paragraph lives inside an open shadow root tree.</p>
+          <p>Blocopy composedPath resolution must correctly identify and handle units within.</p>
+        `;
+        shadow.appendChild(container);
+      }
+    </script>
+  </body>
+</html>

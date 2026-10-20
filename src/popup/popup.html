@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup-card">
+      <h1 id="heading" class="popup-title"></h1>
+      <section id="site-controls" class="popup-controls">
+        <label class="toggle-row" for="site-toggle">
+          <input type="checkbox" id="site-toggle" class="toggle-checkbox">
+          <span id="site-toggle-label" class="toggle-text"></span>
+        </label>
+        <p id="unsupported-msg" class="unsupported-msg" hidden></p>
+      </section>
+      <footer class="popup-footer">
+        <p id="hint" class="hint-text"></p>
+      </footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

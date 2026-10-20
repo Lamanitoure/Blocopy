@@ -1,0 +1,82 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: Canvas;
+  color: CanvasText;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  width: 280px;
+  box-sizing: border-box;
+}
+
+.popup-card {
+  padding-block: 14px;
+  padding-inline: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.popup-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: start;
+}
+
+.popup-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-checkbox {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: Highlight;
+  cursor: pointer;
+}
+
+.toggle-checkbox:focus-visible {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+
+.toggle-text {
+  font-size: 13px;
+  text-align: start;
+  word-break: break-all;
+}
+
+.unsupported-msg {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.8;
+  text-align: start;
+}
+
+.popup-footer {
+  border-block-start: 1px solid rgba(128, 128, 128, 0.25);
+  padding-block-start: 10px;
+}
+
+.hint-text {
+  margin: 0;
+  font-size: 11px;
+  opacity: 0.72;
+  text-align: start;
+}
