@@ -4,3 +4,6 @@ artifacts/
 .playwright-cli/
 *.log
 .DS_Store
+bun.lock
+bun.lockb
+.bun/
