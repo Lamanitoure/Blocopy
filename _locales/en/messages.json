@@ -1,0 +1,48 @@
+{
+  "extName": {
+    "message": "Blocopy",
+    "description": "Extension name, never translated"
+  },
+  "extDescription": {
+    "message": "Double-click to select and copy a whole block of text. Click a paragraph to leave it out.",
+    "description": "Short description of the extension functionality"
+  },
+  "actionTitle": {
+    "message": "Blocopy",
+    "description": "Toolbar button tooltip title, never translated"
+  },
+  "toastCopied": {
+    "message": "Copied",
+    "description": "Toast message displayed when block selection was copied to clipboard"
+  },
+  "toastCopyFailed": {
+    "message": "Could not copy",
+    "description": "Toast message displayed when clipboard write failed"
+  },
+  "toastNothingLeft": {
+    "message": "Nothing left to copy",
+    "description": "Toast message displayed when all units in a container are excluded"
+  },
+  "popupHeading": {
+    "message": "Blocopy on this site",
+    "description": "Heading in the extension toolbar popup"
+  },
+  "popupToggleLabel": {
+    "message": "Enabled on $HOST$",
+    "description": "Label for checkbox enabling or disabling Blocopy on current host",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "popupUnsupportedPage": {
+    "message": "Blocopy cannot run on this page.",
+    "description": "Notice shown in popup for restricted or non-HTTP pages"
+  },
+  "popupHint": {
+    "message": "Alt + double-click selects a single word.",
+    "description": "Hint text explaining native browser word selection bypass"
+  }
+}

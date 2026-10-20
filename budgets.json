@@ -1,0 +1,6 @@
+{
+  "contentJsMaxMinifiedBytes": 20480,
+  "contentJsMaxGzipBytes": 8192,
+  "popupJsMaxMinifiedBytes": 6144,
+  "packageExcludingLocalesMaxBytes": 61440
+}

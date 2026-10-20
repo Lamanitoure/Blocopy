@@ -1,0 +1,18 @@
+{
+  "locales": [
+    { "code": "fr", "mtCode": "fr" },
+    { "code": "es", "mtCode": "es" },
+    { "code": "pt_BR", "mtCode": "pt" },
+    { "code": "de", "mtCode": "de" },
+    { "code": "it", "mtCode": "it" },
+    { "code": "ar", "mtCode": "ar" },
+    { "code": "ru", "mtCode": "ru" },
+    { "code": "zh_CN", "mtCode": "zh" },
+    { "code": "ja", "mtCode": "ja" },
+    { "code": "hi", "mtCode": "hi" }
+  ],
+  "doNotTranslate": [
+    "extName",
+    "actionTitle"
+  ]
+}
