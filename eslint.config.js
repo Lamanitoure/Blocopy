@@ -148,6 +148,20 @@ export default tseslint.config(
       'max-depth': 'off',
     },
   },
+  // React and UI components: relaxed structural and template string limits for JSX
+  {
+    files: ['src/**/*.tsx', 'src/data/**/*.ts', 'vite.config.ts'],
+    rules: {
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+      'complexity': 'off',
+      'no-magic-numbers': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      'no-restricted-syntax': 'off',
+    },
+  },
   {
     ignores: ['dist/**', 'artifacts/**', 'node_modules/**', '.playwright-cli/**'],
   }

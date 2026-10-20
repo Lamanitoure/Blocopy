@@ -11,7 +11,8 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["firefox-webext-browser", "node"]
+    "types": ["firefox-webext-browser", "node"],
+    "jsx": "react-jsx"
   },
   "include": [
     "src/**/*",

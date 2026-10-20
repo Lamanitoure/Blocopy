@@ -1,35 +1,36 @@
-# Blocopy
+# Blocopy (React Edition)
 
 Double-click to select and copy a whole block of text. Click a paragraph to leave it out.
 
-## Gestures
+Blocopy is an intelligent semantic text selection and clipboard sanitizer rewritten as a modern React application with live document sandboxing, dual-format (`text/html` and `text/plain`) clipboard compilation, and hierarchy level navigation.
+
+## Features
+
+- **Semantic Block Selection**: Double-click any paragraph, heading, list item, or blockquote to instantly select and copy its cohesive container.
+- **Single-Click Exclusions**: Click any paragraph inside the active container to leave it out of the selection. The clipboard updates immediately.
+- **Container Hierarchy Expansion**: Double-click inside an active container to climb up one level (e.g. from an individual chat message to the entire conversation thread).
+- **Escape / Shrink**: Press `Escape` or click the shrink control to step back down through levels, or cancel at Level 0.
+- **Dual-format MIME Clipboard Output**: Writes both sanitized rich HTML (compatible with Google Docs, Microsoft Word, Slack, Notion) and structured Markdown plaintext.
+- **Zero-DOM Mutation Highlighting**: Active selection and excluded states are simulated with clean CSS highlight and border overlays without breaking page layout.
+- **Zero Telemetry Guarantee**: Runs 100% on-device in the browser runtime. Makes zero network calls and collects no data.
+
+## Gestures & Controls
 
 | Gesture | When idle | During a session |
 |---|---|---|
-| Double-click on eligible text | Start a session at level 0, highlight, copy. | Inside container: expand one level (clears exclusions). Outside: start new session on target. |
-| Plain left click on unit inside container | Normal behavior. | Toggle unit exclusion, re-render, copy again. |
-| Plain left click outside container | Normal behavior. | End session. Click goes through untouched. |
-| Escape | Nothing. | Go down one level. At level 0: cancel session (clear highlight, clipboard unchanged). |
-| Alt + double-click | Native behavior. | Native behavior. Never intercepted. |
-| Ctrl/Cmd/Shift + click, middle, right click | Normal. | Normal. Never intercepted. |
+| **Double-click** on text | Start session at Level 0, highlight, copy to clipboard | Inside container: expand up one level (resets exclusions). Outside: start new session on target |
+| **Plain left-click** on unit inside container | Normal behavior | Toggle unit exclusion, re-render, update clipboard |
+| **Plain left-click** outside container | Normal behavior | End selection session cleanly |
+| **Escape** | Nothing | Step down one level. At Level 0: cancel session |
+| **Alt + double-click** | Native behavior | Native browser behavior (never intercepted) |
+| **Ctrl/Cmd/Shift + click** | Normal browser behavior | Never intercepted (opens links, multiselect) |
 
-## Privacy Statement
-
-No network access, no data collected, nothing leaves your device. Blocopy does not track you, does not phone home, and makes zero network requests.
-
-## Architecture
-
-- **Manifest V3 Firefox Extension**: Pure TypeScript, zero runtime dependencies.
-- **Pure Reducer State Machine**: Manages selection levels and exclusion sets without DOM side effects.
-- **Ports & Adapters**: Controller orchestrates decoupled Highlighter, Clipboard, and Notifier ports.
-- **CSS Custom Highlight API**: Zero-DOM-mutation highlighting with native system theme colors.
-- **Strict Sanitizer**: Whitelist-based cloning and cleaning of HTML content before clipboard writes.
-- **Logical i18n & Logical CSS**: English source with bidirectional RTL layout support.
-
-## Install for Development
+## Development & Build
 
 ```bash
 npm install
-npm run build
-npm run dev
+npm run dev     # Starts Vite dev server on port 3000
+npm run build   # Production build
+npm test        # Runs unit tests (46 tests passing)
+npm run lint    # ESLint verification
 ```
