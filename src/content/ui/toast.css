@@ -1,0 +1,39 @@
+:host {
+  all: initial;
+  position: fixed;
+  inset-block-end: 1.5rem;
+  inset-inline-end: 1.5rem;
+  z-index: 2147483647;
+  pointer-events: none;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.toast {
+  color-scheme: light dark;
+  background-color: Canvas;
+  color: CanvasText;
+  border: 1px solid CanvasText;
+  border-radius: 6px;
+  padding-block: 0.5rem;
+  padding-inline: 0.85rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+  text-align: start;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: none;
+    transform: none;
+  }
+}

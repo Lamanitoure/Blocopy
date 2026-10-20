@@ -11,7 +11,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["firefox-webext-browser", "node"],
+    "types": ["firefox-webext-browser", "node", "vite/client"],
     "jsx": "react-jsx"
   },
   "include": [
