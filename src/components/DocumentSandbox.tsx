@@ -3,7 +3,6 @@ import {
   FileEdit,
   Eye,
   CornerDownRight,
-  Plus,
 } from 'lucide-react';
 import type { BlocopySession, ToastMessage } from '../core/blocopy-controller.js';
 import {
@@ -21,31 +20,160 @@ interface DocumentSandboxProps {
   onOpenInspector: () => void;
 }
 
+const FIXTURE_PRESETS: Record<string, { label: string; html: string }> = {
+  article: {
+    label: 'Fixture 1: Article',
+    html: `<article class="space-y-4 text-slate-800">
+  <h1 class="text-2xl font-bold text-slate-900">Understanding Modern Web Applications</h1>
+  <p class="leading-relaxed">Modern web development has evolved significantly over the past decade.</p>
+  <p class="leading-relaxed">Developers now have access to native browser primitives such as custom highlights and clipboard APIs.</p>
+  <blockquote class="p-3 border-l-4 border-blue-500 bg-blue-50/50 italic text-slate-700">
+    <p>Simplicity is prerequisite for reliability.</p>
+  </blockquote>
+  <h2 class="text-lg font-bold text-slate-900">Key Architectural Advantages</h2>
+  <ul class="list-disc pl-5 space-y-1">
+    <li>Zero runtime dependency footprint</li>
+    <li>Native CSS system color adaptation</li>
+    <li>Predictable and synchronous state management</li>
+  </ul>
+  <pre class="p-3 bg-slate-900 text-slate-100 rounded-lg text-xs font-mono"><code>function selectBlock(event: MouseEvent) {
+  return findLevels(event.target);
+}</code></pre>
+  <p class="leading-relaxed">These principles allow applications to run reliably without introducing security vulnerabilities.</p>
+</article>`,
+  },
+  chat: {
+    label: 'Fixture 2: Chat Messages',
+    html: `<div class="chat-thread space-y-3">
+  <div class="message p-3 bg-slate-100 rounded-xl border border-slate-200">
+    <p class="font-medium text-slate-900">Hello team, welcome to the sprint kickoff meeting!</p>
+  </div>
+  <div class="message p-3 bg-blue-50 rounded-xl border border-blue-200">
+    <p class="font-medium text-blue-950">Thanks! Here are the agenda items for today:</p>
+    <ul class="list-disc pl-5 my-2 space-y-1 text-blue-900 text-sm">
+      <li>Review Phase 6 popup implementation</li>
+      <li>Validate test fixtures</li>
+      <li>Prepare distribution package</li>
+    </ul>
+    <p class="text-sm text-blue-900">Please let me know if we need to adjust the timing.</p>
+  </div>
+  <div class="message p-3 bg-slate-100 rounded-xl border border-slate-200">
+    <p class="font-medium text-slate-900">The agenda looks comprehensive to me.</p>
+  </div>
+  <div class="message p-3 bg-slate-100 rounded-xl border border-slate-200">
+    <p class="font-medium text-slate-900">I have verified the test suites and all 21 files are passing.</p>
+  </div>
+  <div class="message p-3 bg-indigo-50 rounded-xl border border-indigo-200">
+    <p class="font-medium text-indigo-950">Next steps are documented in the specification repository:</p>
+    <ul class="list-disc pl-5 my-2 space-y-1 text-indigo-900 text-sm">
+      <li>Run manual browser QA</li>
+      <li>Supply owner ID</li>
+    </ul>
+    <p class="text-sm text-indigo-900">Let us begin testing right away.</p>
+  </div>
+  <div class="message p-3 bg-slate-100 rounded-xl border border-slate-200">
+    <p class="font-medium text-slate-900">Agreed, starting manual evaluation now.</p>
+  </div>
+</div>`,
+  },
+  nestedLists: {
+    label: 'Fixture 3: Nested Lists',
+    html: `<div class="space-y-3">
+  <h2 class="text-xl font-bold text-slate-900">Hierarchical Project Roadmap</h2>
+  <ul class="list-disc pl-5 space-y-2 text-slate-800">
+    <li>
+      Phase 1 — Spike
+      <ol class="list-decimal pl-5 mt-1 space-y-1 text-slate-700">
+        <li>
+          Evaluate Custom Highlight
+          <ul class="list-disc pl-5 mt-1 space-y-0.5 text-slate-600">
+            <li>Validate gecko strict_min_version</li>
+            <li>Test ::highlight pseudo selector</li>
+          </ul>
+        </li>
+        <li>Evaluate Clipboard API</li>
+      </ol>
+    </li>
+    <li>
+      Phase 2 — Core Engine
+      <ol class="list-decimal pl-5 mt-1 space-y-1 text-slate-700">
+        <li>
+          Unit Selection Algorithms
+          <ul class="list-disc pl-5 mt-1 space-y-0.5 text-slate-600">
+            <li>Bounded counters</li>
+            <li>TreeWalker navigation</li>
+          </ul>
+        </li>
+        <li>Clipboard Payload Serializer</li>
+      </ol>
+    </li>
+  </ul>
+</div>`,
+  },
+  table: {
+    label: 'Fixture 4: Table (Unselectable)',
+    html: `<div class="space-y-3">
+  <h2 class="text-xl font-bold text-slate-900">Performance Metric Comparison</h2>
+  <table class="w-full border-collapse border border-slate-300 text-sm">
+    <thead>
+      <tr class="bg-slate-100">
+        <th class="border border-slate-300 p-2 text-left font-semibold">Module</th>
+        <th class="border border-slate-300 p-2 text-left font-semibold">Minified Size (B)</th>
+        <th class="border border-slate-300 p-2 text-left font-semibold">Budget Limit (B)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="border border-slate-300 p-2">content.js</td>
+        <td class="border border-slate-300 p-2 font-mono">8575</td>
+        <td class="border border-slate-300 p-2 font-mono">20480</td>
+      </tr>
+      <tr>
+        <td class="border border-slate-300 p-2">popup.js</td>
+        <td class="border border-slate-300 p-2 font-mono">1776</td>
+        <td class="border border-slate-300 p-2 font-mono">6144</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="text-xs text-slate-500 italic">Blocopy rule: clicking table cells returns empty levels (table is protected).</p>
+</div>`,
+  },
+  links: {
+    label: 'Fixture 7: Hyperlinks',
+    html: `<article class="space-y-4 text-slate-800">
+  <h1 class="text-2xl font-bold text-slate-900">Document With Interactive Hyperlinks</h1>
+  <p class="leading-relaxed">Visit the <a href="https://developer.mozilla.org" target="_blank" rel="noreferrer" class="text-blue-600 underline font-medium">MDN Web Docs</a> portal to review WebExtension APIs.</p>
+  <p class="leading-relaxed">During an active session, clicking text outside the anchor tag toggles the unit exclusion state.</p>
+  <p class="leading-relaxed">Modifier keys such as Ctrl or Cmd click on <a href="https://www.w3.org" target="_blank" rel="noreferrer" class="text-blue-600 underline font-medium">W3C Standards</a> must remain untouched.</p>
+</article>`,
+  },
+  forms: {
+    label: 'Fixture 8: Form Controls',
+    html: `<div class="space-y-4">
+  <h1 class="text-2xl font-bold text-slate-900">Form Input Elements Protection</h1>
+  <p class="text-sm text-slate-600">Blocopy guard rules strictly prevent intercepting input fields or textareas.</p>
+  <div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+    <div>
+      <label class="block text-xs font-semibold text-slate-700 mb-1">Username:</label>
+      <input type="text" value="johndoe" class="p-2 border border-slate-300 rounded-lg text-sm w-full bg-white" />
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-700 mb-1">Feedback:</label>
+      <textarea rows="3" class="p-2 border border-slate-300 rounded-lg text-sm w-full bg-white">Double-clicking here will trigger native cursor positioning, never block copy.</textarea>
+    </div>
+  </div>
+</div>`,
+  },
+};
+
 export const DocumentSandbox: React.FC<DocumentSandboxProps> = ({
   session,
   setSession,
   addToast,
   onOpenInspector,
 }) => {
-  const [documentContent, setDocumentContent] = useState<string>(
-    `<article class="space-y-4 text-slate-800">
-  <h2 class="text-xl font-bold text-slate-900">Document Selection Workspace</h2>
-  <p class="leading-relaxed">
-    Double-click any paragraph or element to test Blocopy's block selection.
-  </p>
-  <p class="leading-relaxed">
-    Click a paragraph during an active selection to exclude it from the copied text.
-  </p>
-  <blockquote class="p-3 border-l-4 border-blue-500 bg-blue-50/50 italic text-slate-700">
-    Nested containers expand smoothly with consecutive double-clicks.
-  </blockquote>
-  <ul class="list-disc pl-5 space-y-1">
-    <li>First item</li>
-    <li>Second item (click to leave out)</li>
-    <li>Third item</li>
-  </ul>
-</article>`
-  );
+  const [selectedPreset, setSelectedPreset] = useState<string>('article');
+  const [documentContent, setDocumentContent] = useState<string>(FIXTURE_PRESETS['article']?.html ?? '');
 
   const [isRawEditorOpen, setIsRawEditorOpen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -322,6 +450,33 @@ export const DocumentSandbox: React.FC<DocumentSandboxProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Fixture:</span>
+              <select
+                value={selectedPreset}
+                onChange={(e) => {
+                  const key = e.target.value;
+                  setSelectedPreset(key);
+                  const preset = FIXTURE_PRESETS[key];
+                  if (preset) {
+                    setDocumentContent(preset.html);
+                    setSession(null);
+                    addToast({
+                      type: 'info',
+                      message: `Loaded ${preset.label}`,
+                    });
+                  }
+                }}
+                className="text-xs font-semibold text-slate-800 bg-transparent focus:outline-hidden cursor-pointer"
+              >
+                {Object.entries(FIXTURE_PRESETS).map(([key, item]) => (
+                  <option key={key} value={key}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button
               type="button"
               onClick={() => {
@@ -331,21 +486,7 @@ export const DocumentSandbox: React.FC<DocumentSandboxProps> = ({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors"
             >
               <FileEdit className="w-3.5 h-3.5 text-blue-600" />
-              <span>{isRawEditorOpen ? 'Hide Editor' : 'Edit Document HTML'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setDocumentContent(
-                  '<article class="space-y-3"><p>New paragraph 1</p><p>New paragraph 2</p></article>'
-                );
-                setSession(null);
-              }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Reset Clean</span>
+              <span>{isRawEditorOpen ? 'Hide Editor' : 'Edit HTML'}</span>
             </button>
           </div>
 
