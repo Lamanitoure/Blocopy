@@ -119,7 +119,7 @@ export default tseslint.config(
       'no-magic-numbers': 'off',
     },
   },
-  // Tests: relax lines, complexity and depth for test suites
+  // Tests: relax lines, complexity and depth for test suites; allow fixture setup
   {
     files: ['test/**/*.ts'],
     rules: {
@@ -128,6 +128,7 @@ export default tseslint.config(
       'max-lines-per-function': 'off',
       'complexity': 'off',
       'max-depth': 'off',
+      'no-restricted-syntax': 'off',
     },
   },
   // Node scripts: Node globals and relaxed structural limits for build tools
