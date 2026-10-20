@@ -5,6 +5,7 @@ import { findLevels } from './level-finder.js';
 export interface EligibilityContext {
   readonly isSiteDisabled: boolean;
   readonly settingsLoaded: boolean;
+  readonly bypassTrustCheck?: boolean;
 }
 
 // Checks if target element resides inside an interactive or editable control
@@ -14,7 +15,8 @@ export function isInteractiveElement(element: Element): boolean {
 
 // Evaluates whether an event itself is eligible to start or mutate a session
 function isEventAllowed(event: MouseEvent, context: EligibilityContext): boolean {
-  if (!event.isTrusted || event.altKey) {
+  const isTrusted = context.bypassTrustCheck ? true : event.isTrusted;
+  if (!isTrusted || event.altKey) {
     return false;
   }
   return context.settingsLoaded && !context.isSiteDisabled;
