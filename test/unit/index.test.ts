@@ -7,7 +7,7 @@ import type {
   Notifier,
   SessionListenerPort,
 } from '../../src/content/session/ports.js';
-import type { SessionAction } from '../../src/content/session/session-state.js';
+import type { ClipboardPayload, NotificationKind } from '../../src/shared/types.js';
 
 describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
   let highlighter: Highlighter;
@@ -16,6 +16,11 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
   let listeners: SessionListenerPort;
   let isSiteDisabled: ReturnType<typeof vi.fn<() => boolean>>;
   let siteDisabledChangeCallback: ((disabled: boolean) => void) | null;
+
+  let showSpy: ReturnType<typeof vi.fn<(ranges: readonly Range[]) => void>>;
+  let clearSpy: ReturnType<typeof vi.fn<() => void>>;
+  let writeSpy: ReturnType<typeof vi.fn<(payload: ClipboardPayload) => Promise<void>>>;
+  let notifySpy: ReturnType<typeof vi.fn<(kind: NotificationKind) => void>>;
 
   let article: HTMLElement;
   let section: HTMLElement;
@@ -41,9 +46,21 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
     section.appendChild(article);
     document.body.appendChild(section);
 
-    highlighter = { show: vi.fn(), clear: vi.fn() };
-    clipboard = { write: vi.fn().mockResolvedValue(undefined) };
-    notifier = { notify: vi.fn() };
+    showSpy = vi.fn<(ranges: readonly Range[]) => void>();
+    clearSpy = vi.fn<() => void>();
+    writeSpy = vi.fn<(payload: ClipboardPayload) => Promise<void>>().mockResolvedValue(undefined);
+    notifySpy = vi.fn<(kind: NotificationKind) => void>();
+
+    highlighter = {
+      show: (ranges) => { showSpy(ranges); },
+      clear: () => { clearSpy(); },
+    };
+    clipboard = {
+      write: async (payload) => { await writeSpy(payload); },
+    };
+    notifier = {
+      notify: (kind) => { notifySpy(kind); },
+    };
     listeners = { attach: vi.fn(), detach: vi.fn() };
     isSiteDisabled = vi.fn().mockReturnValue(false);
     siteDisabledChangeCallback = null;
@@ -74,6 +91,7 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
       isSiteDisabled,
       doc: document,
       win: window,
+      bypassTrustCheck: true,
     });
 
     const event = createDblClick(p1);
@@ -83,9 +101,9 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(controller.getState().kind).toBe('active');
-    expect(highlighter.show).toHaveBeenCalledTimes(1);
-    expect(clipboard.write).toHaveBeenCalledTimes(1);
-    expect(notifier.notify).toHaveBeenCalledWith('copied');
+    expect(showSpy).toHaveBeenCalledTimes(1);
+    expect(writeSpy).toHaveBeenCalledTimes(1);
+    expect(notifySpy).toHaveBeenCalledWith('copied');
 
     destroy();
   });
@@ -100,6 +118,7 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
       isSiteDisabled,
       doc: document,
       win: window,
+      bypassTrustCheck: true,
     });
 
     // First dblclick starts session on article
@@ -133,13 +152,14 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
       isSiteDisabled,
       doc: document,
       win: window,
+      bypassTrustCheck: true,
     });
 
     button.dispatchEvent(createDblClick(button));
     await new Promise((r) => setTimeout(r, 10));
 
     expect(controller.getState().kind).toBe('idle');
-    expect(highlighter.show).not.toHaveBeenCalled();
+    expect(showSpy).not.toHaveBeenCalled();
 
     destroy();
   });
@@ -158,6 +178,7 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
       },
       doc: document,
       win: window,
+      bypassTrustCheck: true,
     });
 
     p1.dispatchEvent(createDblClick(p1));
@@ -169,7 +190,7 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
     await new Promise((r) => setTimeout(r, 10));
 
     expect(controller.getState().kind).toBe('idle');
-    expect(highlighter.clear).toHaveBeenCalled();
+    expect(clearSpy).toHaveBeenCalled();
 
     destroy();
   });

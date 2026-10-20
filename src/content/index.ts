@@ -44,13 +44,17 @@ async function handleEligibleDblClick(
   }
 }
 
+interface DomContext {
+  readonly doc: Document;
+  readonly win: Window;
+}
+
 // Processes permanent dblclick event on the page
 async function onDblClick(
   event: MouseEvent,
   controller: SessionController,
   deps: ContentScriptDependencies,
-  doc: Document,
-  win: Window
+  dom: DomContext
 ): Promise<void> {
   const target = resolveTarget(event);
   if (!target) {
@@ -60,15 +64,15 @@ async function onDblClick(
   const context: EligibilityContext = {
     isSiteDisabled: deps.isSiteDisabled(),
     settingsLoaded: true,
-    bypassTrustCheck: deps.bypassTrustCheck,
+    ...(deps.bypassTrustCheck !== undefined ? { bypassTrustCheck: deps.bypassTrustCheck } : {}),
   };
 
-  if (!isEligible(event, target, context, doc.body)) {
+  if (!isEligible(event, target, context, dom.doc.body)) {
     return;
   }
 
   await handleEligibleDblClick(target, controller);
-  win.getSelection()?.removeAllRanges();
+  dom.win.getSelection()?.removeAllRanges();
 }
 
 // Composition root initializing the content script controller and event wiring
@@ -78,6 +82,7 @@ export function initContentScript(deps: ContentScriptDependencies): {
 } {
   const doc = deps.doc ?? document;
   const win = deps.win ?? window;
+  const dom: DomContext = { doc, win };
 
   const controller = new SessionController(
     deps.highlighter,
@@ -87,7 +92,7 @@ export function initContentScript(deps: ContentScriptDependencies): {
   );
 
   const dblClickListener = (event: MouseEvent): void => {
-    void onDblClick(event, controller, deps, doc, win);
+    void onDblClick(event, controller, deps, dom);
   };
 
   doc.addEventListener('dblclick', dblClickListener, { capture: true });
