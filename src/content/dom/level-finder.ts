@@ -5,13 +5,12 @@ import {
   REPEATED_SIBLINGS_THRESHOLD,
 } from '../../shared/config/limits.js';
 import {
-  UNIT_SELECTOR,
   NON_CONTAINER_TAGS,
   HARD_STOP_TAGS,
   PREFERRED_CONTAINER_SELECTOR,
 } from '../../shared/config/selectors.js';
-import { closestLeafUnit } from './units.js';
-import { hasAtLeast, exceedsTextBudget } from './bounded.js';
+import { closestLeafUnit, hasAtLeastLeafUnits } from './units.js';
+import { exceedsTextBudget } from './bounded.js';
 
 // Checks if element is a stop boundary where hierarchy climb must terminate
 function isHardStop(node: Element): boolean {
@@ -48,8 +47,10 @@ function isRepeatedItem(parent: Element, child: Element): boolean {
 
 // Determines if an ancestor qualifies as a selectable container level
 function shouldAddContainer(node: Element): boolean {
-  return hasAtLeast(node, UNIT_SELECTOR, MIN_UNITS_PER_CONTAINER) ||
-    node.matches(PREFERRED_CONTAINER_SELECTOR);
+  const isCustomElement = node.tagName.includes('-');
+  return hasAtLeastLeafUnits(node, MIN_UNITS_PER_CONTAINER) ||
+    node.matches(PREFERRED_CONTAINER_SELECTOR) ||
+    (isCustomElement && hasAtLeastLeafUnits(node, 1));
 }
 
 // Evaluates an ancestor and records it as candidate level; returns true if climbing should stop
@@ -68,9 +69,10 @@ function processContainerNode(current: Element, levels: Element[]): boolean {
   return false;
 }
 
-// Adds a standalone semantic container as the first selectable level.
-function addPreferredRootLevel(start: Element, levels: Element[]): boolean {
-  if (!start.matches(PREFERRED_CONTAINER_SELECTOR)) {
+// Adds a standalone semantic or custom container as the first selectable level.
+function addRootLevel(start: Element, levels: Element[]): boolean {
+  const isCustomElement = start.tagName.includes('-');
+  if (!start.matches(PREFERRED_CONTAINER_SELECTOR) && !isCustomElement) {
     return false;
   }
   if (exceedsTextBudget(start, MAX_SELECTION_CHARS)) {
@@ -88,7 +90,7 @@ export function findLevels(target: Element): Element[] {
   }
 
   const levels: Element[] = [];
-  if (addPreferredRootLevel(start, levels)) {
+  if (addRootLevel(start, levels)) {
     return levels;
   }
 

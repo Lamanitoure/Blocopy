@@ -54,16 +54,15 @@ interface DomContext {
   readonly win: Window;
 }
 
-// Processes permanent dblclick event on the page
-async function onDblClick(
+// Claims an eligible gesture before native selection or page handlers can act on it.
+function claimEligibleGesture(
   event: MouseEvent,
-  controller: SessionController,
   deps: ContentScriptDependencies,
   dom: DomContext
-): Promise<void> {
+): Element | null {
   const target = resolveTarget(event);
   if (!target) {
-    return;
+    return null;
   }
 
   const context: EligibilityContext = {
@@ -73,11 +72,48 @@ async function onDblClick(
   };
 
   if (!isEligible(event, target, context, dom.doc.body)) {
+    return null;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  dom.win.getSelection()?.removeAllRanges();
+  return target;
+}
+
+// Processes permanent dblclick event when a browser did not report a second mouse-down.
+async function onDblClick(
+  event: MouseEvent,
+  controller: SessionController,
+  deps: ContentScriptDependencies,
+  dom: DomContext
+): Promise<void> {
+  const target = claimEligibleGesture(event, deps, dom);
+  if (!target) {
     return;
   }
 
   await handleEligibleDblClick(target, controller);
-  dom.win.getSelection()?.removeAllRanges();
+}
+
+// Starts selection on the second mouse-down, which is more reliable than dblclick alone.
+function onMouseDown(
+  event: MouseEvent,
+  controller: SessionController,
+  deps: ContentScriptDependencies,
+  dom: DomContext
+): boolean {
+  if (event.detail !== 2) {
+    return false;
+  }
+
+  const target = claimEligibleGesture(event, deps, dom);
+  if (!target) {
+    return false;
+  }
+
+  void handleEligibleDblClick(target, controller);
+  return true;
 }
 
 // Composition root initializing the content script controller and event wiring
@@ -96,11 +132,22 @@ export function initContentScript(deps: ContentScriptDependencies): {
     deps.listeners
   );
 
+  let skipNextDblClick = false;
   const dblClickListener = (event: MouseEvent): void => {
+    if (skipNextDblClick) {
+      skipNextDblClick = false;
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     void onDblClick(event, controller, deps, dom);
+  };
+  const mouseDownListener = (event: MouseEvent): void => {
+    skipNextDblClick = onMouseDown(event, controller, deps, dom);
   };
 
   doc.addEventListener('dblclick', dblClickListener, { capture: true });
+  doc.addEventListener('mousedown', mouseDownListener, { capture: true });
 
   const unsubscribeSettings = deps.onSiteDisabledChange?.((disabled: boolean) => {
     if (disabled) {
@@ -110,6 +157,7 @@ export function initContentScript(deps: ContentScriptDependencies): {
 
   const destroy = (): void => {
     doc.removeEventListener('dblclick', dblClickListener, { capture: true });
+    doc.removeEventListener('mousedown', mouseDownListener, { capture: true });
     unsubscribeSettings?.();
     void controller.dispatch({ type: 'end' });
   };

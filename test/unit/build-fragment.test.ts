@@ -75,7 +75,7 @@ describe('Fragment Building (Spec Section 8.3)', () => {
   });
 
   it('returns an empty fragment when the selected message root is excluded', () => {
-    const message = document.createElement('user-query');
+    const message = document.createElement('article');
     message.textContent = 'A message to exclude';
     document.body.appendChild(message);
 

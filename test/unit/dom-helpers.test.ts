@@ -2,7 +2,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getPath, resolvePath } from '../../src/content/dom/paths.js';
 import { hasAtLeast, exceedsTextBudget } from '../../src/content/dom/bounded.js';
-import { isLeafUnit, closestLeafUnit, listLeafUnits } from '../../src/content/dom/units.js';
+import {
+  isLeafUnit,
+  closestLeafUnit,
+  listLeafUnits,
+  hasAtLeastLeafUnits,
+} from '../../src/content/dom/units.js';
 
 describe('DOM Helpers: paths, bounded, units', () => {
   beforeEach(() => {
@@ -118,13 +123,27 @@ describe('DOM Helpers: paths, bounded, units', () => {
       expect(units[4]?.textContent).toBe('Item 2');
     });
 
-    it('listLeafUnits includes a chat message when it is the selection root', () => {
-      const message = document.createElement('user-query');
-      message.textContent = 'A Gemini user message';
+    it('recognizes a leaf div with inline text as a generic text unit', () => {
+      const message = document.createElement('div');
+      const text = document.createElement('span');
+      text.textContent = 'A generic message';
+      message.appendChild(text);
       document.body.appendChild(message);
 
       expect(isLeafUnit(message)).toBe(true);
       expect(listLeafUnits(message)).toEqual([message]);
+    });
+
+    it('counts generic text units with an early threshold', () => {
+      const conversation = document.createElement('div');
+      conversation.append(
+        Object.assign(document.createElement('div'), { textContent: 'First message' }),
+        Object.assign(document.createElement('div'), { textContent: 'Second message' })
+      );
+      document.body.appendChild(conversation);
+
+      expect(hasAtLeastLeafUnits(conversation, 2)).toBe(true);
+      expect(hasAtLeastLeafUnits(conversation, 3)).toBe(false);
     });
   });
 });

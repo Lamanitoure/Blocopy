@@ -5,7 +5,7 @@ Double-click to select and copy a whole block of text. Click a paragraph to leav
 ## What it does
 
 Blocopy is a Firefox desktop WebExtension (Manifest V3) that streamlines text copying:
-- **Block Selection**: Double-click any paragraph, heading, list item, or quote to select and copy its cohesive container block.
+- **Block Selection**: Double-click readable text to select and copy its cohesive block, including semantic HTML and generic text containers.
 - **Exclusions**: Click any paragraph inside the container to exclude it from the selection. The clipboard updates immediately.
 - **Hierarchy Climbing**: Double-click inside the selection to step up one container level (e.g. from an individual message to a whole thread).
 - **Dual Representation**: Automatically writes both sanitized rich `text/html` and clean `text/plain` to the clipboard.

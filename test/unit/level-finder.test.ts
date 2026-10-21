@@ -167,36 +167,33 @@ describe('Level Finder (Spec Section 8.2)', () => {
     expect(levels).toEqual([]);
   });
 
-  it('9. ChatGPT message root is selectable even when it contains only div text', () => {
+  it('9. Semantic article selects div-only text as one complete block', () => {
     const article = document.createElement('article');
     const message = document.createElement('div');
-    message.setAttribute('data-message-author-role', 'user');
     const text = document.createElement('div');
-    text.textContent = 'A ChatGPT user message';
+    text.textContent = 'A message made of nested divs';
     message.appendChild(text);
     article.appendChild(message);
     document.body.appendChild(article);
 
     const levels = findLevels(text);
-    expect(levels[0]).toBe(message);
+    expect(levels[0]).toBe(article);
   });
 
-  it('10. Gemini model response is a container for its semantic text units', () => {
-    const response = document.createElement('model-response');
-    const paragraph = document.createElement('p');
-    paragraph.textContent = 'A Gemini response';
-    response.appendChild(paragraph);
+  it('10. Custom components with direct text are selectable containers', () => {
+    const response = document.createElement('conversation-response');
+    response.textContent = 'A response in a custom element';
     document.body.appendChild(response);
 
-    const levels = findLevels(paragraph);
+    const levels = findLevels(response);
     expect(levels[0]).toBe(response);
   });
 
-  it('11. Claude article role with div-only text is a selectable level', () => {
+  it('11. ARIA article with div-only text is a selectable level', () => {
     const message = document.createElement('div');
     message.setAttribute('role', 'article');
     const text = document.createElement('div');
-    text.textContent = 'A Claude response';
+    text.textContent = 'A response in an ARIA article';
     message.appendChild(text);
     document.body.appendChild(message);
 
@@ -204,13 +201,37 @@ describe('Level Finder (Spec Section 8.2)', () => {
     expect(levels[0]).toBe(message);
   });
 
-  it('12. Grok response root is selectable without a paragraph', () => {
+  it('12. Repeated generic text blocks select their containing conversation', () => {
+    const conversation = document.createElement('div');
     const response = document.createElement('div');
-    response.setAttribute('data-testid', 'grokResponseText');
-    response.textContent = 'A Grok response';
-    document.body.appendChild(response);
+    response.className = 'message';
+    response.textContent = 'First response';
+    const otherResponse = document.createElement('div');
+    otherResponse.className = 'message';
+    otherResponse.textContent = 'Second response';
+    const thirdResponse = document.createElement('div');
+    thirdResponse.className = 'message';
+    thirdResponse.textContent = 'Third response';
+    conversation.append(response, otherResponse, thirdResponse);
+    document.body.appendChild(conversation);
 
     const levels = findLevels(response);
     expect(levels[0]).toBe(response);
+  });
+
+  it('13. Generic wrapper groups multiple text blocks before its semantic article', () => {
+    const article = document.createElement('article');
+    const message = document.createElement('div');
+    const firstBlock = document.createElement('div');
+    firstBlock.textContent = 'First block';
+    const secondBlock = document.createElement('div');
+    secondBlock.textContent = 'Second block';
+    message.append(firstBlock, secondBlock);
+    article.appendChild(message);
+    document.body.appendChild(article);
+
+    const levels = findLevels(firstBlock);
+    expect(levels[0]).toBe(message);
+    expect(levels[1]).toBe(article);
   });
 });

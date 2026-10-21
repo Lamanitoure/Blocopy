@@ -95,6 +95,8 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
     });
 
     const event = createDblClick(p1);
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+    const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
     p1.dispatchEvent(event);
 
     // Wait for microtask / async dispatch completion
@@ -104,6 +106,8 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
     expect(showSpy).toHaveBeenCalledTimes(1);
     expect(writeSpy).toHaveBeenCalledTimes(1);
     expect(notifySpy).toHaveBeenCalledWith('copied');
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+    expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
 
     destroy();
   });
@@ -155,17 +159,71 @@ describe('Content Script Wiring (Spec Section 9.3 & Phase 3 Task 4)', () => {
       bypassTrustCheck: true,
     });
 
-    button.dispatchEvent(createDblClick(button));
+    const event = createDblClick(button);
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+    button.dispatchEvent(event);
     await new Promise((r) => setTimeout(r, 10));
 
     expect(controller.getState().kind).toBe('idle');
     expect(showSpy).not.toHaveBeenCalled();
+    expect(preventDefaultSpy).not.toHaveBeenCalled();
 
     destroy();
   });
 
-  // 4. Site disabled changes mid-session dispatches end
-  it('4. site becoming disabled ends the active session', async () => {
+  it('4. second mouse-down starts a session and prevents native word selection', async () => {
+    const { controller, destroy } = initContentScript({
+      highlighter,
+      clipboard,
+      notifier,
+      listeners,
+      isSiteDisabled,
+      doc: document,
+      win: window,
+      bypassTrustCheck: true,
+    });
+
+    const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, detail: 2 });
+    Object.defineProperty(event, 'target', { value: p1 });
+    Object.defineProperty(event, 'composedPath', { value: () => [p1] });
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+    const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
+    p1.dispatchEvent(event);
+
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1);
+    expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(controller.getState()).toMatchObject({ kind: 'active', levelIndex: 0 });
+    destroy();
+  });
+
+  it('5. matching dblclick does not expand the session a second time', async () => {
+    const { controller, destroy } = initContentScript({
+      highlighter,
+      clipboard,
+      notifier,
+      listeners,
+      isSiteDisabled,
+      doc: document,
+      win: window,
+      bypassTrustCheck: true,
+    });
+
+    const mouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true, detail: 2 });
+    Object.defineProperty(mouseDown, 'target', { value: p1 });
+    Object.defineProperty(mouseDown, 'composedPath', { value: () => [p1] });
+    p1.dispatchEvent(mouseDown);
+    await new Promise((r) => setTimeout(r, 10));
+
+    p1.dispatchEvent(createDblClick(p1));
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(controller.getState()).toMatchObject({ kind: 'active', levelIndex: 0 });
+    destroy();
+  });
+
+  // 6. Site disabled changes mid-session dispatches end
+  it('6. site becoming disabled ends the active session', async () => {
     const { controller, destroy } = initContentScript({
       highlighter,
       clipboard,

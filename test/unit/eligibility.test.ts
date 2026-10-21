@@ -117,12 +117,11 @@ describe('Guard Rules & Eligibility (Spec Section 2.3 & Phase 3 Task 2)', () => 
     expect(isEligible(event, p1, defaultContext, document.body)).toBe(true);
   });
 
-  it('8. returns true for a ChatGPT message with div-only text', () => {
+  it('8. returns true for an article containing div-only text', () => {
     const event = createMouseEvent({ isTrusted: true });
-    const message = document.createElement('div');
-    message.setAttribute('data-message-author-role', 'user');
+    const message = document.createElement('section');
     const text = document.createElement('div');
-    text.textContent = 'ChatGPT user message';
+    text.textContent = 'A generic message';
     message.appendChild(text);
     article.appendChild(message);
 
