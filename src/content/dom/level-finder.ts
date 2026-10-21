@@ -68,6 +68,18 @@ function processContainerNode(current: Element, levels: Element[]): boolean {
   return false;
 }
 
+// Adds a standalone semantic container as the first selectable level.
+function addPreferredRootLevel(start: Element, levels: Element[]): boolean {
+  if (!start.matches(PREFERRED_CONTAINER_SELECTOR)) {
+    return false;
+  }
+  if (exceedsTextBudget(start, MAX_SELECTION_CHARS)) {
+    return true;
+  }
+  levels.push(start);
+  return levels.length === MAX_LEVELS;
+}
+
 // Finds candidate selection container levels starting from target element up to MAX_LEVELS
 export function findLevels(target: Element): Element[] {
   const start = closestLeafUnit(target, target.ownerDocument.body);
@@ -76,6 +88,10 @@ export function findLevels(target: Element): Element[] {
   }
 
   const levels: Element[] = [];
+  if (addPreferredRootLevel(start, levels)) {
+    return levels;
+  }
+
   let child: Element = start;
   let current: Element | null = start.parentElement;
 

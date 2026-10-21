@@ -10,7 +10,8 @@
   },
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "clipboardWrite"
   ],
   "action": {
     "default_title": "__MSG_actionTitle__",
@@ -37,7 +38,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "blocopy@lamanitoure.github.io",
+      "id": "blocopy@lamannitoure.github.io",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
         "required": [

@@ -10,6 +10,11 @@ import { SessionController } from './session/session-controller.js';
 import { resolveTarget } from './dom/target.js';
 import { isEligible, type EligibilityContext } from './dom/eligibility.js';
 import { findLevels } from './dom/level-finder.js';
+import { AsyncClipboardWriter } from './clipboard/clipboard-writer.js';
+import { CssHighlighter } from './highlight/css-highlighter.js';
+import { DomSessionListeners } from './events/listeners.js';
+import { SiteSettingsManager } from './settings/site-settings.js';
+import { ToastNotifier } from './ui/toast.js';
 
 export interface ContentScriptDependencies {
   readonly highlighter: Highlighter;
@@ -110,4 +115,26 @@ export function initContentScript(deps: ContentScriptDependencies): {
   };
 
   return { controller, destroy };
+}
+
+// Creates the browser-facing dependencies and starts one controller per frame.
+function bootstrapContentScript(): void {
+  const settings = new SiteSettingsManager();
+  const hostname = window.location.hostname;
+
+  void settings.init().catch(() => undefined).then(() => {
+    initContentScript({
+      highlighter: new CssHighlighter(),
+      clipboard: new AsyncClipboardWriter(),
+      notifier: new ToastNotifier(),
+      listeners: new DomSessionListeners(),
+      isSiteDisabled: () => settings.isSiteDisabled(hostname),
+      onSiteDisabledChange: (callback) => settings.onSiteDisabledChange(hostname, callback),
+    });
+  });
+}
+
+// Unit tests import this module directly; the browser global only exists in WebExtension contexts.
+if (typeof browser !== 'undefined') {
+  bootstrapContentScript();
 }

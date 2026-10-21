@@ -45,6 +45,10 @@ function pruneEmptyNodes(root: Element): void {
 function removeExcludedNodes(clone: Element, paths: readonly DOMPath[]): void {
   const sorted = [...paths].sort(comparePathsDescending);
   for (const path of sorted) {
+    if (path.length === 0) {
+      clone.replaceChildren();
+      continue;
+    }
     const node = resolvePath(clone, path);
     if (node?.parentNode) {
       node.parentNode.removeChild(node);
@@ -54,7 +58,9 @@ function removeExcludedNodes(clone: Element, paths: readonly DOMPath[]): void {
 
 // Builds an isolated DocumentFragment from container minus excluded units, with empty tag pruning
 export function buildFragment(container: Element, excluded: readonly Element[]): DocumentFragment {
-  const paths = excluded.map((el) => getPath(container, el));
+  const paths = excluded
+    .filter((el) => container.contains(el))
+    .map((el) => getPath(container, el));
   const clone = container.cloneNode(true) as Element;
 
   removeExcludedNodes(clone, paths);

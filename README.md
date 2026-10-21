@@ -11,13 +11,19 @@ Blocopy is a Firefox desktop WebExtension (Manifest V3) that streamlines text co
 - **Dual Representation**: Automatically writes both sanitized rich `text/html` and clean `text/plain` to the clipboard.
 - **Zero Layout Shift**: Highlights selections using the CSS Custom Highlight API without modifying the live DOM.
 
+## Install
+
+From addons.mozilla.org: link to come once the listing is published.
+
+To run it from source, see [Development & Testing](#development--testing).
+
 ## Gestures
 
 | Gesture | When idle | During a session |
 |---|---|---|
 | **Double-click on eligible text** | Start session at Level 0, highlight, copy | Inside container: expand up one level (clears exclusions). Outside: start new session on target |
 | **Plain left click on unit inside container** | Normal behavior | Toggle unit exclusion, re-render highlight, copy updated selection |
-| **Plain left click outside container** | Normal behavior | End session cleanly. Click passes through untouched |
+| **Plain left click outside container** | Normal behavior | Go down one level; at Level 0, cancel session. Click passes through untouched |
 | **Escape** | Nothing | Go down one level. At Level 0: cancel session (clipboard unchanged) |
 | **Alt + double-click** | Native behavior | Native browser word selection (never intercepted) |
 | **Ctrl/Cmd/Shift + click, middle, right click** | Normal | Normal browser behavior (links open, context menus work) |
@@ -51,16 +57,46 @@ Blocopy is a Firefox desktop WebExtension (Manifest V3) that streamlines text co
 - **Iframes**: Per-frame activation uses the frame's own `location.hostname`. Cross-origin iframes remain enabled unless their own domain is explicitly disabled in the popup.
 - **Max Selection Size**: Selections exceeding 200,000 characters stop climbing to prevent memory overhead.
 - **Paste Behavior**: Paste handling is out of scope; your system's native paste handles pasting into any rich editor or plaintext app.
+- **Canvas-based editors**: Blocopy cannot select text in editors that draw text on a canvas, such as Google Docs.
 
 ## Development & Testing
 
 ```bash
-# Install dependencies
-npm install
+# Install dependencies (exact versions from package-lock.json)
+npm ci
 
-# Start development mode
-npm run dev
+# Build the extension, serve local test pages, and open a temporary Firefox
+npm run dev:fixtures -- --firefox
+
+# Or, after building, run only the extension in a temporary Firefox
+npm run build
+npm run start:ext
 
 # Run all verification checks
 npm run verify
 ```
+
+The fixture server shows test pages at `http://localhost:3000`. Use it to test the extension on local pages; `npm run dev` only starts the Blocopy web interface.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to run the checks and add translation overrides.
+
+## Build from source
+
+This section is for Mozilla add-on reviewers and contributors.
+
+- **OS**: Linux or macOS (any system with Node.js and npm; on Windows, use WSL or Git Bash for `build.sh`)
+- **Node.js**: the version in `.nvmrc` (install from https://nodejs.org or with `nvm install`)
+- **npm**: the version bundled with that Node.js
+- **Runtime dependencies**: none. Dev tools only (TypeScript, esbuild, ESLint, Vitest, web-ext), pinned by `package-lock.json`.
+
+Steps:
+
+1. Unzip the source archive.
+2. Run `./build.sh` (or: `npm ci && npm run build`).
+3. The result is in `dist/` and matches the submitted extension.
+
+No third-party code is bundled, and the build does not minify third-party libraries. The `_locales/*/messages.json` files other than `en` are machine-translated data, committed as-is. They are not code and the build does not regenerate them.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

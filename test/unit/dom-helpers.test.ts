@@ -117,5 +117,14 @@ describe('DOM Helpers: paths, bounded, units', () => {
       expect(units[3]?.textContent).toBe('Item 1');
       expect(units[4]?.textContent).toBe('Item 2');
     });
+
+    it('listLeafUnits includes a chat message when it is the selection root', () => {
+      const message = document.createElement('user-query');
+      message.textContent = 'A Gemini user message';
+      document.body.appendChild(message);
+
+      expect(isLeafUnit(message)).toBe(true);
+      expect(listLeafUnits(message)).toEqual([message]);
+    });
   });
 });

@@ -22,6 +22,8 @@ export function closestLeafUnit(from: Element, within: Element): Element | null 
 
 // Lists all leaf unit elements inside root in document order
 export function listLeafUnits(root: Element): Element[] {
-  const elements = Array.from(root.querySelectorAll(UNIT_SELECTOR));
+  const elements = isLeafUnit(root)
+    ? [root, ...Array.from(root.querySelectorAll(UNIT_SELECTOR))]
+    : Array.from(root.querySelectorAll(UNIT_SELECTOR));
   return elements.filter((el) => isLeafUnit(el));
 }

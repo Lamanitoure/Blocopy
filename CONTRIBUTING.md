@@ -39,9 +39,9 @@ Static test fixtures are provided in `test/fixtures/` to validate browser behavi
 
 To test manually in Firefox:
 ```bash
-npm run dev
+npm run dev:fixtures -- --firefox
 ```
-Open each fixture in Firefox to ensure expected selection, exclusion, expansion, and copying.
+This builds the extension in development mode, serves the fixtures at `http://localhost:3000`, and opens a temporary Firefox with the extension loaded. Open a fixture such as `http://localhost:3000/fixtures/article.html` to test selection, exclusion, expansion, and copying. `npm run dev` starts the Blocopy web interface; it does not load the browser extension or serve the fixtures.
 
 ## Adding Translation Overrides
 

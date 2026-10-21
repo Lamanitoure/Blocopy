@@ -21,16 +21,16 @@ function handleClick(
   const target = resolveTarget(event);
   if (!target) return;
 
+  if (!isPlainLeftClick(event)) {
+    return;
+  }
+
   if (!container.contains(target)) {
-    dispatch({ type: 'end' });
+    dispatch({ type: 'back' });
     return;
   }
 
   if (isInteractiveElement(target)) {
-    return;
-  }
-
-  if (!isPlainLeftClick(event)) {
     return;
   }
 

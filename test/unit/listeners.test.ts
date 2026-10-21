@@ -64,8 +64,8 @@ describe('Session Event Listeners (Spec Section 9.3 & Phase 3 Task 3)', () => {
     expect(stopPropagationSpy).toHaveBeenCalledTimes(1);
   });
 
-  // 2. Click outside container -> dispatches end without preventDefault or stopPropagation
-  it('2. ends session on click outside container without modifying native event', () => {
+  // 2. Click outside container -> dispatches back like Escape without modifying native event
+  it('2. steps back on click outside container without modifying native event', () => {
     listeners.attach(article, dispatchMock);
 
     const event = createClick(outsideP);
@@ -74,7 +74,7 @@ describe('Session Event Listeners (Spec Section 9.3 & Phase 3 Task 3)', () => {
 
     document.dispatchEvent(event);
 
-    expect(dispatchMock).toHaveBeenCalledWith({ type: 'end' });
+    expect(dispatchMock).toHaveBeenCalledWith({ type: 'back' });
     expect(preventDefaultSpy).not.toHaveBeenCalled();
     expect(stopPropagationSpy).not.toHaveBeenCalled();
   });
@@ -93,6 +93,10 @@ describe('Session Event Listeners (Spec Section 9.3 & Phase 3 Task 3)', () => {
 
     const rightClick = createClick(p1, { button: 2 });
     document.dispatchEvent(rightClick);
+    expect(dispatchMock).not.toHaveBeenCalled();
+
+    const ctrlOutsideClick = createClick(outsideP, { ctrlKey: true });
+    document.dispatchEvent(ctrlOutsideClick);
     expect(dispatchMock).not.toHaveBeenCalled();
   });
 

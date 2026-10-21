@@ -73,4 +73,14 @@ describe('Fragment Building (Spec Section 8.3)', () => {
     expect(fragment.querySelector('p')).not.toBeNull();
     expect(fragment.querySelector('img')).not.toBeNull();
   });
+
+  it('returns an empty fragment when the selected message root is excluded', () => {
+    const message = document.createElement('user-query');
+    message.textContent = 'A message to exclude';
+    document.body.appendChild(message);
+
+    const fragment = buildFragment(message, [message]);
+
+    expect(fragment.childNodes).toHaveLength(0);
+  });
 });
