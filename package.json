@@ -4,7 +4,7 @@
   "private": true,
   "description": "Double-click to select and copy a whole block of text. Click a paragraph to leave it out.",
   "type": "module",
-  "author": "OWNER_SUPPLIED",
+  "author": "Lamanitoure",
   "license": "MIT",
   "engines": {
     "node": ">=22.0.0"
